@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Events</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Latest GitHub Events</h1>
+        <ul id="events-list">
+            {% for event in events %}
+                <li>{{ event['author'] }} {{ event['action'] }} {{ event.get('from_branch', '') }} {{ event['branch'] }} on {{ event['timestamp'] }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script>
+        setInterval(() => {
+            fetch('/')
+                .then(response => response.text())
+                .then(html => {
+                    document.body.innerHTML = html;
+                });
+        }, 15000);
+    </script>
+</body>
+</html>
