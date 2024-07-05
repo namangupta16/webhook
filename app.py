@@ -18,7 +18,7 @@ def webhook():
     return jsonify({"message": "Event received"}), 200
 
 def process_event(event_type, data):
-    now_utc = datetime.utcnow()
+    now_utc = datetime.now(pytz.utc)
     now_ist = now_utc.astimezone(IST)
     timestamp = now_ist.strftime('%I:%M:%S %p')
 
