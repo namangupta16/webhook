@@ -17,6 +17,9 @@
                         {{ event['from_branch'] }}
                     {% endif %}
                     {{ event['branch'] }} on {{ event['timestamp'] }}
+                    {% if event.get('commit_id') %}
+                        (Commit ID: {{ event['commit_id'] }})
+                    {% endif %}
                     {% if event.get('request_id') %}
                         (Request ID: {{ event['request_id'] }})
                     {% endif %}

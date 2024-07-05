@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from pymongo import MongoClient
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 
 app = Flask(__name__)
@@ -20,14 +20,15 @@ def webhook():
 def process_event(event_type, data):
     now_utc = datetime.utcnow()
     now_ist = now_utc.astimezone(IST)
-    timestamp = now_ist.strftime('%H:%M:%S')
+    timestamp = now_ist.strftime('%I:%M:%S %p')
 
     if event_type == "push":
         event = {
             "author": data['pusher']['name'],
             "action": "pushed to",
             "branch": data['ref'].split('/')[-1],
-            "timestamp": timestamp
+            "timestamp": timestamp,
+            "commit_id": data['head_commit']['id']
         }
     elif event_type == "pull_request":
         event = {
