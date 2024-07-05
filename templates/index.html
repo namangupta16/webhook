@@ -11,7 +11,16 @@
         <h1>Latest GitHub Events</h1>
         <ul id="events-list">
             {% for event in events %}
-                <li>{{ event['author'] }} {{ event['action'] }} {{ event.get('from_branch', '') }} {{ event['branch'] }} on {{ event['timestamp'] }}</li>
+                <li>
+                    {{ event['author'] }} {{ event['action'] }}
+                    {% if event.get('from_branch') %}
+                        {{ event['from_branch'] }}
+                    {% endif %}
+                    {{ event['branch'] }} on {{ event['timestamp'] }}
+                    {% if event.get('request_id') %}
+                        (Request ID: {{ event['request_id'] }})
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
     </div>

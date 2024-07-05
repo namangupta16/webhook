@@ -1,11 +1,14 @@
 from flask import Flask, request, jsonify, render_template
 from pymongo import MongoClient
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
 
 app = Flask(__name__)
 client = MongoClient('mongodb://localhost:27017/')
 db = client['github_events']
 collection = db['events']
+
+IST = pytz.timezone('Asia/Kolkata')
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -15,12 +18,16 @@ def webhook():
     return jsonify({"message": "Event received"}), 200
 
 def process_event(event_type, data):
+    now_utc = datetime.utcnow()
+    now_ist = now_utc.astimezone(IST)
+    timestamp = now_ist.strftime('%H:%M:%S')
+
     if event_type == "push":
         event = {
             "author": data['pusher']['name'],
             "action": "pushed to",
             "branch": data['ref'].split('/')[-1],
-            "timestamp": datetime.utcnow().strftime('%d %B %Y - %I:%M %p UTC')
+            "timestamp": timestamp
         }
     elif event_type == "pull_request":
         event = {
@@ -28,7 +35,8 @@ def process_event(event_type, data):
             "action": "submitted a pull request from",
             "from_branch": data['pull_request']['head']['ref'],
             "to_branch": data['pull_request']['base']['ref'],
-            "timestamp": datetime.utcnow().strftime('%d %B %Y - %I:%M %p UTC')
+            "timestamp": timestamp,
+            "request_id": data['pull_request']['id']
         }
     elif event_type == "pull_request" and data['action'] == "closed" and data['pull_request']['merged']:
         event = {
@@ -36,7 +44,8 @@ def process_event(event_type, data):
             "action": "merged branch",
             "from_branch": data['pull_request']['head']['ref'],
             "to_branch": data['pull_request']['base']['ref'],
-            "timestamp": datetime.utcnow().strftime('%d %B %Y - %I:%M %p UTC')
+            "timestamp": timestamp,
+            "request_id": data['pull_request']['id']
         }
     else:
         return
